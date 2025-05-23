@@ -11,14 +11,14 @@ ros::NodeHandle  nh;
 
 #define LOOPTIME 100
 
-Motor right(5,4,20,21);
-Motor left(2,3,18,19);
-
+Motor right(5, 4, 20, 21);
+Motor left(2, 3, 18, 19);
+  
 volatile long encoder0Pos = 0;    // encoder 1
 volatile long encoder1Pos = 0;    // encoder 2
 
-double left_kp = 16 , left_ki = 0 , left_kd = 0;             // modify for optimal performance
-double right_kp = 12 , right_ki = 0 , right_kd = 0;
+double left_kp = 0.1 , left_ki = 0 , left_kd = 0;             // modify for optimal performance
+double right_kp = 0.1 , right_ki = 0 , right_kd = 0;
 
 
 double right_input = 0, right_output = 0, right_setpoint = 0;
@@ -77,9 +77,6 @@ double speed_act_left = 0;                    //Actual speed for left wheel in m
 double speed_act_right = 0;                    //Command speed for left wheel in m/s 
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println(2999);
-
   nh.initNode();
   nh.subscribe(sub);
   nh.advertise(rightPub);
@@ -102,7 +99,6 @@ void setup() {
   
    attachInterrupt(digitalPinToInterrupt(18), left_wheel_tick, RISING);
    attachInterrupt(digitalPinToInterrupt(20), right_wheel_tick, RISING);
-
 }
 
 void loop() {
@@ -121,8 +117,7 @@ void loop() {
     
     speed_act_left = encoder0Diff/21.65;                    
     speed_act_right = encoder1Diff/21.65; 
-    Serial.print(1000);
-//    Serial.print(",");
+  
     encoder0Error = (demand_speed_left*21.65)-encoder0Diff; // 3965 ticks in 1m = 39.65 ticks in 10ms, due to the 10 millis loop
     encoder1Error = (demand_speed_right*21.65)-encoder1Diff;
   
@@ -131,8 +126,7 @@ void loop() {
   
     left_setpoint = demand_speed_left*21.65;  //Setting required speed as a mul/frac of 1 m/s
     right_setpoint = demand_speed_right*21.65;
-//    Serial.print(2000);
-
+  
     left_input = encoder0Diff;  //Input to PID controller is the current difference
     right_input = encoder1Diff;
     
